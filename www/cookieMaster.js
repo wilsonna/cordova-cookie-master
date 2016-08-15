@@ -14,6 +14,15 @@ var cookieMaster = {
                     [url, cookieName, cookieValue]
         );
     },
+
+    setCookieOption: function(option, successCallback, errorCallback) {
+        //ios
+        cordova.exec(successCallback,
+                     errorCallback,
+                     'CookieMaster', 'setCookieOption', 
+                     [option]
+         );
+    },
     clear: function(successCallback, errorCallback) {
         cordova.exec(successCallback,
                     errorCallback,

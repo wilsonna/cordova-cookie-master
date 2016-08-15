@@ -12,6 +12,7 @@
 
 - (void)getCookieValue:(CDVInvokedUrlCommand*)command;
 - (void)setCookieValue:(CDVInvokedUrlCommand*)command;
+- (void)setCookieOption:(CDVInvokedUrlCommand*)command;
 - (void)clearCookies:(CDVInvokedUrlCommand*)command;
 
 @end
