@@ -43,7 +43,8 @@ public class CookieMaster extends CordovaPlugin {
 
                         JSONObject json = null;
                         if (cookieValue != "") {
-                            json = new JSONObject("{cookieValue:\"" + cookieValue + "\"}");
+                            json = new JSONObject();
+                            json.put("cookieValue", cookieValue);
                         }
                         if (json != null) {
                             PluginResult res = new PluginResult(PluginResult.Status.OK, json);
