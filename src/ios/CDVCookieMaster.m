@@ -8,16 +8,73 @@
 
 #import "CDVCookieMaster.h"
 
+#import <WebKit/WKWebsiteDataStore.h>
 
 @implementation CDVCookieMaster
 
  - (void)getCookieValue:(CDVInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult = nil;
+    __block CDVPluginResult* pluginResult = nil;
     NSString* urlString = [command.arguments objectAtIndex:0];
     __block NSString* cookieName = [command.arguments objectAtIndex:1];
     
-    if (urlString != nil) {
+    //if (urlString != nil) {
+		//[NSSet setWithArray:@[
+                        //WKWebsiteDataTypeDiskCache,
+                        //WKWebsiteDataTypeOfflineWebApplicationCache,
+                        //WKWebsiteDataTypeMemoryCache,
+                        //WKWebsiteDataTypeLocalStorage,
+                        //WKWebsiteDataTypeCookies,
+                        //WKWebsiteDataTypeSessionStorage,
+                        //WKWebsiteDataTypeIndexedDBDatabases,
+                        //WKWebsiteDataTypeWebSQLDatabases
+                        //]]
+		
+		[[WKWebsiteDataStore defaultDataStore] fetchDataRecordsOfTypes:[NSSet setWithObjects:WKWebsiteDataTypeCookies, nil]
+                     completionHandler:^(NSArray<WKWebsiteDataRecord *> * __nonnull records) {
+						 //NSArray* dataTypes = [records valueForKeyPath:@"dataTypes"];
+						 NSMutableArray* cookies = [[NSMutableArray alloc] init]; //[records valueForKeyPath:@"description"];
+						 
+						 for (WKWebsiteDataRecord* record in records) {
+							for (NSString *dataType in record.dataTypes) {
+								[cookies addObject:dataType];
+							}
+						}
+
+						NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+						NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+						NSArray* filelist = [[NSFileManager defaultManager] directoryContentsAtPath:cookiesFolderPath];
+	
+						 /*
+						 NSArray *germanMakes = @[@"Mercedes-Benz", @"BMW", @"Porsche",
+                         @"Opel", @"Volkswagen", @"Audi"];
+
+						NSPredicate *beforeL = [NSPredicate predicateWithBlock:
+							^BOOL(id evaluatedObject, NSDictionary *bindings) {
+								NSComparisonResult result = [@"L" compare:evaluatedObject];
+								if (result == NSOrderedDescending) {
+									return YES;
+								} else {
+									return NO;
+								}
+							}];
+						NSArray *makesBeforeL = [germanMakes
+												 filteredArrayUsingPredicate:beforeL];
+						NSLog(@"%@", makesBeforeL);    // BMW, Audi
+						 */
+						 
+                         //for (WKWebsiteDataRecord *record in records) {
+                             //NSLog(@"WKWebsiteDataRecord:%@",[record description]);
+                         //}
+						 //NSUInteger elements = [records count];
+						 
+						 pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"No cookie found. %@", filelist]];
+						 
+						 [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                     }];
+		
+		
+		/*
         NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:urlString]];
         //NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
         NSUInteger *elements = [cookies count];
@@ -43,6 +100,7 @@
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"URL was null"];
     }
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+	*/
 }
 
  - (void)setCookieValue:(CDVInvokedUrlCommand*)command
@@ -96,6 +154,42 @@
     
     CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+	
+/*
+IOS 9
+WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
+[dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
+                 completionHandler:^(NSArray<WKWebsiteDataRecord *> * __nonnull records) {
+                     for (WKWebsiteDataRecord *record  in records)
+                     {
+                         if ( [record.displayName containsString:@"facebook"])
+                         {
+                             [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:record.dataTypes
+                                                                       forDataRecords:@[record]
+                                                                    completionHandler:^{
+                                                                        NSLog(@"Cookies for %@ deleted successfully",record.displayName);
+                                                                    }];
+                         }
+                     }
+                 }];
+
+IOS 8
+NSString *libraryPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+NSString *cookiesFolderPath = [libraryPath stringByAppendingString:@"/Cookies"];
+NSError *errors;
+[[NSFileManager defaultManager] removeItemAtPath:cookiesFolderPath error:&errors];
+				 
+Alternative
+
+var libraryPath : String = NSFileManager().URLsForDirectory(.LibraryDirectory, inDomains: .UserDomainMask).first!.path!
+libraryPath += "/Cookies"
+do {
+    try NSFileManager.defaultManager().removeItemAtPath(libraryPath)
+} catch {
+    print("error")
+}
+NSURLCache.sharedURLCache().removeAllCachedResponses()
+*/
 }
 
 
