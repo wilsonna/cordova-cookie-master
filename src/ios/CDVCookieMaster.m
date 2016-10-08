@@ -19,11 +19,14 @@
     
     if (urlString != nil) {
         NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:urlString]];
-        
+        //NSArray* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookies];
+        NSUInteger *elements = [cookies count];
+		
         __block NSString *cookieValue;
         
         [cookies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             NSHTTPCookie *cookie = obj;
+			
             if([cookie.name isEqualToString:cookieName])
             {
                 cookieValue = cookie.value;
@@ -33,7 +36,7 @@
         if (cookieValue != nil) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:@{@"cookieValue":cookieValue}];
         } else {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No cookie found"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:[NSString stringWithFormat:@"No cookie found. count=%d   %@", elements, cookies]];
         }
 
     } else {
